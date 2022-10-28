@@ -1,0 +1,10 @@
+# Define the workflow
+workflow:
+  name: "tutorial"
+  run: true
+
+# Define the tasks under the workflow
+tasks:
+  - name: test1
+    task_type: Shell
+    command: echo hello pydolphinscheduler

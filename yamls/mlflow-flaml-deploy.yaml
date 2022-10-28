@@ -1,0 +1,26 @@
+# Define variable `mlflow_tracking_uri`
+mlflow_tracking_uri: &mlflow_tracking_uri "http://192.168.2.90:5000"
+
+# Define the workflow
+workflow:
+  name: "automl-and-deploy"
+  run: true
+
+# Define the tasks under the workflow
+tasks:
+  - name: train_automl
+    task_type: MLFlowProjectsAutoML
+    mlflow_tracking_uri: *mlflow_tracking_uri
+    parameters: time_budget=30;estimator_list=['lgbm']
+    experiment_name: iris
+    model_name: iris
+    automl_tool: flaml
+    data_path: /data/iris
+
+  - name: deploy
+    deps: [train_automl]
+    task_type: MLflowModels
+    model_uri: models:/iris/Production
+    mlflow_tracking_uri: *mlflow_tracking_uri
+    deploy_mode: MLFLOW
+    port: 7002
