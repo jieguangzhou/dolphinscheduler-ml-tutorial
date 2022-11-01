@@ -1,5 +1,5 @@
 # Define variable `mlflow_tracking_uri`
-mlflow_tracking_uri: &mlflow_tracking_uri "http://192.168.2.90:5000"
+mlflow_tracking_uri: &mlflow_tracking_uri "http://mlflow-tracking-server:5000"
 
 # Define the workflow
 workflow:

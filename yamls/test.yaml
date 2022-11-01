@@ -7,4 +7,4 @@ workflow:
 tasks:
   - name: test1
     task_type: Shell
-    command: echo hello pydolphinscheduler
+    command: conda config --show

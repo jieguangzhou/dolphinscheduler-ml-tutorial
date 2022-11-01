@@ -1,0 +1,4 @@
+channels:
+  - http://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+  - http://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+show_channel_urls: true

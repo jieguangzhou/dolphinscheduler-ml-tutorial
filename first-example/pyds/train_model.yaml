@@ -1,0 +1,35 @@
+# Define variable `mlflow_tracking_uri`
+mlflow_tracking_uri: &mlflow_tracking_uri "http://mlflow-tracking-server:5000"
+repository: &repository "/data/dvc/repo/airplane" 
+data_version: &version v2
+
+
+# Define the workflow
+workflow:
+  name: "automl-and-deploy"
+  run: true
+
+# Define the tasks under the workflow
+tasks:
+  - name: clean_exists_data
+    task_type: Shell
+    command: rm -rf /data/train/airplane
+
+
+  - name: pull_data
+    deps: [clean_exists_data]
+    task_type: DVCDownload
+    repository: *repository
+    data_path_in_dvc_repository: "data"
+    data_path_in_worker: /data/train/airplane
+    version: *version
+
+  - name: train_automl
+    deps: [pull_data]
+    task_type: MLFlowProjectsAutoML
+    mlflow_tracking_uri: *mlflow_tracking_uri
+    parameters: time_budget=200;metric=accuracy
+    experiment_name: airplane
+    model_name: airplane
+    automl_tool: flaml
+    data_path: /data/train/airplane 

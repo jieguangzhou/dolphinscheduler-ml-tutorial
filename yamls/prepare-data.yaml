@@ -1,0 +1,15 @@
+# Define the workflow
+workflow:
+  name: "download-data"
+  run: true
+
+# Define the tasks under the workflow
+tasks:
+  - name: install-dependencies
+    task_type: Shell
+    command: pip install openml flaml
+
+  - name: download-data
+    deps: [install-dependencies]
+    task_type: Python
+    definition: $FILE{"download-data.py"}

@@ -1,0 +1,45 @@
+# Define variable `repository`
+repository: &repository "/data/dvc/repo/airplane" 
+
+# Define the workflow
+workflow:
+  name: "dvc_init_local"
+  release_state: "online"
+  run: true
+
+# Define the tasks under the process
+tasks:
+  - name: create_git_repo
+    task_type: Shell
+    command: |
+      rm -rf /data/dvc/repo/airplane
+      git config --global user.email "xxx@example.com"
+      git config --global user.name "xxx"
+      git --bare init /data/dvc/repo/airplane 
+
+  - name: init_dvc 
+    deps: [create_git_repo]
+    task_type: DVCInit
+    repository: *repository 
+    store_url: /data/dvc
+
+  - name: report_success_message 
+    deps: [condition]
+    task_type: Shell
+    command: echo "init dvc repo success"
+
+  - name: report_error_message
+    deps: [condition]
+    task_type: Shell
+    command: echo "init dvc repo error"
+
+  - name: condition
+    task_type: Condition
+    success_task: report_success_message 
+    failed_task: report_error_message
+    op: AND
+    groups:
+      - op: AND
+        groups:
+          - task: init_dvc
+            flag: true
