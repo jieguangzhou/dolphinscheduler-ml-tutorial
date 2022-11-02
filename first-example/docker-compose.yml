@@ -1,0 +1,64 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "3.8"
+
+services:
+  dolphinscheduler-standalone:
+    image: ds-conda:3.1.0
+    ports:
+      - "12345:12345"
+      - "25333:25333"
+    profiles: ["all"]
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:12345/dolphinscheduler/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - /home/lucky/WhaleOps/docker-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+    networks:
+      - dolphinscheduler
+
+  mlflow-tracking-server:
+    image: mlflow:1.30.0
+    ports:
+      - "5000:5000"
+    profiles: ["all"]
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:5000/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - mlflow-data:/data
+    command: mlflow server -h 0.0.0.0 -p 5000 --serve-artifacts --backend-store-uri sqlite:///mlflow.db
+
+    networks:
+      - dolphinscheduler
+
+networks:
+  dolphinscheduler:
+    driver: bridge
+
+volumes:
+  dolphinscheduler-data:
+  dolphinscheduler-logs:
+  dolphinscheduler-resource-local:
+  mlflow-data:
+

@@ -1,0 +1,39 @@
+# Define variable `mlflow_tracking_uri`
+mlflow_tracking_uri: &mlflow_tracking_uri "http://mlflow-tracking-server:5000"
+repository: &repository "/data/dvc/repo/airplane" 
+data_version: &version v1
+
+# Define the workflow
+workflow:
+  name: "inference"
+  run: true
+
+# Define the tasks under the workflow
+tasks:
+  - name: clean_exists_data
+    task_type: Shell
+    command: rm -rf /data/train/airplane
+
+
+  - name: pull_data
+    deps: [clean_exists_data]
+    task_type: DVCDownload
+    repository: *repository
+    data_path_in_dvc_repository: "data"
+    data_path_in_worker: /data/train/airplane
+    version: *version
+
+  - name: inference
+    deps: [pull_data]
+    task_type: Shell
+    command: |
+      export MLFLOW_TRACKING_URI=http://mlflow-tracking-server:5000
+      mlflow models predict -m "models:/airplane/Production" -t csv -i /data/train/airplane/inference.csv -o /data/train/airplane/out.json
+
+  - name: evaluate
+    deps: [inference]
+    task_type: Python
+    definition: $FILE{"../evaluate.py"}
+    local_params:
+      - { "prop": "model_name", "direct": "IN", "type": "VARCHAR", "value": airplane}
+      - { "prop": "data_path", "direct": "IN", "type": "VARCHAR", "value": /data/train/airplane}
