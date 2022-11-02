@@ -1,13 +1,13 @@
 # Define variable `repository`
 repository: &repository "/tmp/ds-ml-example/dvc/repo" 
-top_n: &top_n 200000
-version: &version v1
-message: &message data 200000
+top_n: &top_n 500000
+version: &version v2
+message: &message data 500000
 
 # Define the workflow
 workflow:
   name: "prepare-data"
-  run: true
+  run: false
 
 # Define the tasks under the workflow
 tasks:

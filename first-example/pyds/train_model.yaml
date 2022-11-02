@@ -1,12 +1,12 @@
 # Define variable `mlflow_tracking_uri`
 repository: &repository "/tmp/ds-ml-example/dvc/repo" 
-data_version: &version v1
+data_version: &version v2
 data_path: &data_path /tmp/ds-ml-example/train_data
 
 # Define the workflow
 workflow:
   name: "train_model"
-  run: true
+  run: false
 
 # Define the tasks under the workflow
 tasks:

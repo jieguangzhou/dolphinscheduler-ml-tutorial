@@ -7,7 +7,7 @@ workflow:
   param:
     port: 7002
     model_version: Production
-  run: true
+  run: false
 
 # Define the tasks under the workflow
 tasks:
