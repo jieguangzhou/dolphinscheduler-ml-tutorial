@@ -1,10 +1,6 @@
-# Define variable `repository`
-repository: &repository "/data/dvc/repo/airplane" 
-
 # Define the workflow
 workflow:
   name: "dvc_init_local"
-  release_state: "online"
   run: true
 
 # Define the tasks under the process
@@ -12,15 +8,15 @@ tasks:
   - name: create_git_repo
     task_type: Shell
     command: |
-      rm -rf /data/dvc/repo/airplane
+      rm -rf /tmp/ds-ml-example/dvc/repo 
       git config --global user.email "xxx@example.com"
       git config --global user.name "xxx"
-      git --bare init /data/dvc/repo/airplane 
+      git --bare init /tmp/ds-ml-example/dvc/repo 
 
   - name: init_dvc 
     deps: [create_git_repo]
     task_type: DVCInit
-    repository: *repository 
+    repository: /tmp/ds-ml-example/dvc/repo 
     store_url: /data/dvc
 
   - name: report_success_message 

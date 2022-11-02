@@ -1,35 +1,52 @@
 # Define variable `mlflow_tracking_uri`
-mlflow_tracking_uri: &mlflow_tracking_uri "http://mlflow-tracking-server:5000"
-repository: &repository "/data/dvc/repo/airplane" 
+repository: &repository "/tmp/ds-ml-example/dvc/repo" 
 data_version: &version v2
-
+data_path: &data_path /tmp/ds-ml-example/train_data
 
 # Define the workflow
 workflow:
-  name: "automl-and-deploy"
-  run: true
+  name: "train_model"
+  run: false
 
 # Define the tasks under the workflow
 tasks:
   - name: clean_exists_data
     task_type: Shell
-    command: rm -rf /data/train/airplane
-
+    command: rm -rf ${data_path}
+    local_params:
+      - { "prop": "data_path", "direct": "IN", "type": "VARCHAR", "value": *data_path}
 
   - name: pull_data
     deps: [clean_exists_data]
     task_type: DVCDownload
     repository: *repository
     data_path_in_dvc_repository: "data"
-    data_path_in_worker: /data/train/airplane
+    data_path_in_worker: *data_path
     version: *version
 
   - name: train_automl
     deps: [pull_data]
     task_type: MLFlowProjectsAutoML
-    mlflow_tracking_uri: *mlflow_tracking_uri
-    parameters: time_budget=200;metric=accuracy
+    mlflow_tracking_uri: http://localhost:5000
+    parameters: time_budget=60;metric=accuracy
     experiment_name: airplane
     model_name: airplane
     automl_tool: flaml
-    data_path: /data/train/airplane 
+    data_path: *data_path 
+
+  - name: inference
+    deps: [train_automl]
+    task_type: Shell
+    command: |
+      export MLFLOW_TRACKING_URI=http://localhost:5000
+      mlflow models predict -m "models:/airplane/Production" -t csv -i ${data_path}/inference.csv -o ${data_path}/out.json
+    local_params:
+      - { "prop": "data_path", "direct": "IN", "type": "VARCHAR", "value": *data_path}
+
+  - name: evaluate
+    deps: [inference]
+    task_type: Python
+    definition: $FILE{"../evaluate.py"}
+    local_params:
+      - { "prop": "model_name", "direct": "IN", "type": "VARCHAR", "value": airplane}
+      - { "prop": "data_path", "direct": "IN", "type": "VARCHAR", "value": *data_path}

@@ -23,14 +23,15 @@ services:
       - "12345:12345"
       - "25333:25333"
     profiles: ["all"]
-    env_file: .env
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:12345/dolphinscheduler/actuator/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
     volumes:
-      - /tmp/docker-data:/data
+      - /home/lucky/WhaleOps/docker-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
     networks:
       - dolphinscheduler
 
@@ -39,7 +40,6 @@ services:
     ports:
       - "5000:5000"
     profiles: ["all"]
-    env_file: .env
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:5000/health" ]
       interval: 30s

@@ -42,4 +42,6 @@ RUN echo "no" | dpkg-reconfigure dash
 
 ADD .condarc /root/.condarc
 
+# RUN git clone https://github.com/apache/dolphinscheduler-mlflow.git /root/dolphinscheduler-mlflow
+
 CMD [ "/bin/bash", "./bin/start.sh" ]

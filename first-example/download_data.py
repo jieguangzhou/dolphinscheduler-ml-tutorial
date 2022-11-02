@@ -13,7 +13,7 @@ train_data['label'] = train_data.pop("Delay")
 test_data['label'] = test_data.pop("Delay")
 
 
-ouput_data = '/data/raw/airplane/all'
+ouput_data = '/tmp/ds-ml-example/raw'
 os.makedirs(ouput_data, exist_ok=True)
 
 train_path = os.path.join(ouput_data, 'train.csv')

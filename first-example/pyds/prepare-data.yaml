@@ -1,5 +1,5 @@
 # Define variable `repository`
-repository: &repository "/data/dvc/repo/airplane" 
+repository: &repository "/tmp/ds-ml-example/dvc/repo" 
 top_n: &top_n 500000
 version: &version v2
 message: &message data 500000
@@ -7,7 +7,7 @@ message: &message data 500000
 # Define the workflow
 workflow:
   name: "prepare-data"
-  run: run
+  run: false
 
 # Define the tasks under the workflow
 tasks:
@@ -16,13 +16,13 @@ tasks:
     definition: $FILE{"../data_preprocessing.py"}
     local_params:
       - { "prop": "top_n", "direct": "IN", "type": "VARCHAR", "value": *top_n}
-      - { "prop": "output_path", "direct": "IN", "type": "VARCHAR", "value": /data/preprocessing/airplane/data}
+      - { "prop": "output_path", "direct": "IN", "type": "VARCHAR", "value": /tmp/ds-ml-example/preprocessed}
 
   - name: upload_data
     deps: [data_preprocessing]
     task_type: DVCUpload
     repository: *repository
     data_path_in_dvc_repository: "data"
-    data_path_in_worker: /data/preprocessing/airplane/data  
+    data_path_in_worker: /tmp/ds-ml-example/preprocessed  
     version: *version
     message: *message 

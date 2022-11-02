@@ -1,0 +1,22 @@
+# Define the process
+workflow:
+  name: train_and_deploy
+  run: run
+
+# Define the tasks under the process
+tasks:
+  - 
+    name: prepare_data
+    task_type: SubProcess 
+    process_definition_name: $WORKFLOW{"prepare-data.yaml"} 
+  - 
+    name: train_model 
+    task_type: SubProcess
+    deps: [prepare_data]
+    process_definition_name: $WORKFLOW{"train_model.yaml"}
+
+  - 
+    name: deploy 
+    task_type: SubProcess
+    deps: [train_model]
+    process_definition_name: $WORKFLOW{"deploy.yaml"}  

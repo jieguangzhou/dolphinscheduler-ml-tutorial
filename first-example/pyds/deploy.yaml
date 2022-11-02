@@ -1,0 +1,28 @@
+# Define variable `mlflow_tracking_uri`
+mlflow_tracking_uri: &mlflow_tracking_uri "http://localhost:5000"
+
+# Define the workflow
+workflow:
+  name: "deploy"
+  param:
+    port: 7002
+    model_version: Production
+  run: false
+# Define the tasks under the workflow
+tasks:
+  - name: kill-server
+    task_type: Shell
+    command: kill -9 $(lsof -i:${port} -t) || exit 0
+
+  - name: deploy-model
+    deps: [kill-server]
+    task_type: MLflowModels
+    model_uri: models:/airplane/${model_version}
+    mlflow_tracking_uri: *mlflow_tracking_uri
+    deploy_mode: MLFLOW
+    port: ${port}
+  - name: test-server
+
+    deps: [kill-server]
+    task_type: Python
+    definition: $FILE{"../test_server.py"}

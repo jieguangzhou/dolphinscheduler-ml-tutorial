@@ -21,4 +21,3 @@ test_path = os.path.join(ouput_data, 'test.csv')
 
 train_data.to_csv(train_path, index=False)
 test_data.to_csv(test_path, index=False)
-
